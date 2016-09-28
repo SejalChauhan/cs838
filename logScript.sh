@@ -19,7 +19,11 @@ sudo sh -c "sync; echo 3 > /proc/sys/vm/drop_caches"
 HERE
 
 #clearing hadoop fs history folder
-hadoop fs -rm -r -f /tmp/hadoop-yarn/staging/history/*
+if [ ! hadoop fs -d "/tmp/hadoop-yarn/staging/history/done_intermediate" ]; then
+  # Control will enter here if $DIRECTORY doesn't exist.
+  hadoop fs -rm -r -f /tmp/hadoop-yarn/staging/history/*
+fi
+
 
 #collecting the network and disk bandwidth stats before
 sudo cat /proc/net/dev > query$query/netbeforevm1.txt
@@ -27,7 +31,6 @@ sudo cat /proc/diskstats > query$query/diskbeforevm1.txt
 
 ssh vm2 << HERE
 sudo cat /proc/net/dev > netbeforevm2.txt
-
 sudo cat /proc/diskstats > diskbeforevm2.txt
 scp netbeforevm2.txt vm1:~/logs-trial/query$query/
 scp diskbeforevm2.txt vm1:~/logs-trial/query$query/
@@ -57,7 +60,11 @@ cd -
 mv ../workload/hive-tpcds-tpch-workload/output/query_mr.out query$query/
 
 #copying logs jhist file locally
-hadoop fs -get /tmp/hadoop-yarn/staging/history/ query$query/
+if [ ! hadoop fs -d "/tmp/hadoop-yarn/staging/history/done_intermediate" ]; then
+  # Control will enter here if $DIRECTORY doesn't exist.
+  hadoop fs -get /tmp/hadoop-yarn/staging/history/ query$query/
+fi
+
 
 #collecting the network and disk bandwidth stats before
 sudo cat /proc/net/dev > query$query/netaftervm1.txt
