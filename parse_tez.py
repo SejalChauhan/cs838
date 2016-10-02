@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 from matplotlib.dates import MinuteLocator, SecondLocator, DateFormatter
 from matplotlib.ticker import MaxNLocator
 
+import codecs
+import unicodedata
+
 import operator 
 import datetime
 import numpy as np
@@ -17,39 +20,98 @@ class parseIt:
     def __init__(self,data):
         #json_string = '{"first_name": "sejal", "last_name": "chauhan"}'
         #parsed_json = json.loads(json_string)
-        jobID = data['jobID']
-        totalMaps = data['totalMaps']
-        totalReduces = data['totalReduces']
-        totalTasks = totalMaps + totalReduces
-        mapTasks = data['mapTasks']
-        reduceTasks = data['reduceTasks']
+        maps = {}
+        reduces = {}
+        for record in data:
+           if record['entitytype'] == "TEZ_DAG_ID" and contains_mappings(record):
+                otherinfo = record['otherinfo']
+                mapping = otherinfo["vertexNameIdMapping"]
+                for u_task, val in mapping.items():
+                    task = str(u_task)
+                    if task.startswith("Map") or task.startswith("map"):
+                        maps[val] = {}
+                    else:
+                        reduces[val] = {}
+                #populated maps and reduces 
+        
+        for record in data:
+            for vertex_id in maps:
+                if record['entity'] == vertex_id and contains_start_time(record):
+                    otherinfo = record["otherinfo"]
+                    maps[vertex_id]['startTime'] = otherinfo['startTime']
 
+                if record['entity'] == vertex_id and contains_end_time(record):
+                    otherinfo = record["otherinfo"]
+                    maps[vertex_id]['endTime'] = otherinfo['endTime']
+                    maps[vertex_id]['timeTaken'] = otherinfo['timeTaken']
+             
+            for vertex_id in reduces:
+                if record['entity'] == vertex_id and contains_start_time(record):
+                    otherinfo = record["otherinfo"]
+                    reduces[vertex_id]['startTime'] = otherinfo['startTime']
+                 
+                if record['entity'] == vertex_id and contains_end_time(record):
+                    otherinfo = record["otherinfo"]
+                    reduces[vertex_id]['endTime'] = otherinfo['endTime']
+                    reduces[vertex_id]['timeTaken'] = otherinfo['timeTaken']
+
+        #jobID = data['jobID']
+        totalMaps = len(maps)
+        totalReduces = len(reduces)
+        totalTasks = totalMaps + totalReduces
+        
         self.total_maps = totalMaps
         self.total_reduces = totalReduces
         self.total_tasks = totalTasks 
         
-        # datetime.datetime.fromtimestamp(1347517370)
-        #first_start
-        #last_end
-        self.map_data = parse_tasks(mapTasks)
-        self.reduce_data = parse_tasks(reduceTasks)
+        self.map_data = parse_tasks(maps)
+        self.reduce_data = parse_tasks(reduces)
 
+
+def contains_start_time(record):
+    if record['entitytype'] != "TEZ_VERTEX_ID":
+        return False
+    if "events" not in record:
+        return False
+    events = record["events"]
+    if len(events) == 0:
+        return False
+    if events[0]["eventtype"] == "VERTEX_STARTED":
+        return True
+    return False 
+
+def contains_end_time(record):
+    if record['entitytype'] != "TEZ_VERTEX_ID":
+        return False
+    if "events" not in record:
+        return False
+    events = record["events"]
+    if len(events) == 0:
+        return False
+    if events[0]["eventtype"] == "VERTEX_FINISHED":
+        return True
+    return False 
+
+
+def contains_mappings(record):
+    if "otherinfo" not in record:
+        return False
+    otherinfo = record['otherinfo']
+    if "vertexNameIdMapping" not in otherinfo:
+        return False
+    return True
 
 #It parses both map and reduce tasks 
 def parse_tasks(tasks):
-    map_rec_num = 0
     records = []
-    for mapRecord in tasks:
+    for vertex,record in tasks.items():
         rec = {}
-        taskID = mapRecord["taskID"]
-        task_start = mapRecord["startTime"]
+        task_start = record["startTime"]
         rec["start"] = task_start
-        task_end = mapRecord["finishTime"]
+        task_end = record["endTime"]
         rec["end"] = task_end
         rec["task"] = 1
-        map_rec_num  = map_rec_num + 1
         records.append(rec)
-        #print taskID, task_start, task_end
     
     # aggrgate for each timestamp 
     timestamp = {}
@@ -71,14 +133,6 @@ def parse_tasks(tasks):
         for rec in records:
             if t > rec['start'] and t < rec['end']:
                 timestamp[t] = timestamp[t] + 1
-
-    #another pass to remove items after end_time 
-    #for record in records:
-    #    start_t = record['start']
-    #    end_t = record['end']
-    #    for t in timestamp:
-    #        if t > end_t:
-    #            timestamp[rec['start']] = timestamp[rec['start']] - 1
 
     map_data = []
     sorted_map_data = sorted(timestamp.items(), key=operator.itemgetter(0))
@@ -132,13 +186,13 @@ def plot_graph(map_data, reduce_data):
     #ax.fmt_xdata = DateFormatter('%Y-%m-%d')
     #ax.fmt_ydata = price
     # Zoom in 
-    axins = zoomed_inset_axes(ax, 0.7, loc=5) # zoom = 6
+    axins = zoomed_inset_axes(ax, 0.4, loc=5) # zoom = 6
     axins.plot(map(lambda x: x*1000, map_x), map_task_data, '-')
     axins.plot(map(lambda x: x*1000, reduce_x), reduce_task_data, 'r-')
     #axins.invert_yaxis()
     #axins.axis([1, 5000, 1, 35])
-    axins.set_xlim(0, 25)
-    axins.set_ylim(0, 27)
+    axins.set_xlim(0, 15)
+    axins.set_ylim(0, 4)
     axins.xaxis.tick_top()
     axins.xaxis.set_major_locator(MaxNLocator(nbins=1, prune='lower'))
     axins.set_xlabel("Zoom in the first Sec")
@@ -153,22 +207,20 @@ def plot_graph(map_data, reduce_data):
     plt.show()
 
 if __name__ == '__main__':
-    query_num = sys.argv[1]
-    num_of_file = int(sys.argv[2])
+    json_file = sys.argv[1]
     total_maps = 0
     total_reduces = 0
     total_tasks = 0
     map_data = []
     reduce_data = []
-    for file_id in range(1, num_of_file):
-        json_file = query_num + "/job-trace" + str(file_id) + ".json"
-        with open(json_file) as data_file:
-            data = json.load(data_file)
-        parser = parseIt(data)
-        total_maps = total_maps + parser.total_maps
-        total_reduces = total_reduces + parser.total_reduces
-        map_data.extend(parser.map_data)
-        reduce_data.extend(parser.reduce_data)
+    
+    data_file = codecs.open(json_file, 'r', encoding='ISO-8859-1')
+    data = json.load(data_file)
+    parser = parseIt(data)
+    total_maps = total_maps + parser.total_maps
+    total_reduces = total_reduces + parser.total_reduces
+    map_data.extend(parser.map_data)
+    reduce_data.extend(parser.reduce_data)
     total_tasks = total_maps + total_reduces    
     print total_maps, total_reduces, total_tasks
     plot_graph(map_data, reduce_data)
