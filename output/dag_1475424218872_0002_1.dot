@@ -1,0 +1,26 @@
+digraph ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1 {
+graph [ label="ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1", fontsize=24, fontname=Helvetica];
+node [fontsize=12, fontname=Helvetica];
+edge [fontsize=9, fontcolor=blue, fontname=Arial];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Reducer_3_out_Reducer_3" [ label = "Reducer_3[out_Reducer_3]", shape = "box" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Reducer_2" [ label = "Reducer_2[ReduceTezProcessor]" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Reducer_2" -> "ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Reducer_3" [ label = "[input=OrderedPartitionedKVOutput,\n output=OrderedGroupedKVInput,\n dataMovement=SCATTER_GATHER,\n schedulingType=SEQUENTIAL]" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_5_item" [ label = "Map_5[item]", shape = "box" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_5_item" -> "ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_5" [ label = "Input [inputClass=MRInputLegacy,\n initializer=HiveSplitGenerator]" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_6" [ label = "Map_6[MapTezProcessor]" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_6" -> "ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_1" [ label = "[input=UnorderedKVOutput,\n output=UnorderedKVInput,\n dataMovement=BROADCAST,\n schedulingType=SEQUENTIAL]" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_1_inventory" [ label = "Map_1[inventory]", shape = "box" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_1_inventory" -> "ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_1" [ label = "Input [inputClass=MRInputLegacy,\n initializer=HiveSplitGenerator]" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_6_date_dim" [ label = "Map_6[date_dim]", shape = "box" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_6_date_dim" -> "ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_6" [ label = "Input [inputClass=MRInputLegacy,\n initializer=HiveSplitGenerator]" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Reducer_3" [ label = "Reducer_3[ReduceTezProcessor]" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Reducer_3" -> "ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Reducer_3_out_Reducer_3" [ label = "Output [outputClass=MROutput,\n committer=]" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_1" [ label = "Map_1[MapTezProcessor]" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_1" -> "ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Reducer_2" [ label = "[input=OrderedPartitionedKVOutput,\n output=OrderedGroupedKVInput,\n dataMovement=SCATTER_GATHER,\n schedulingType=SEQUENTIAL]" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_4" [ label = "Map_4[MapTezProcessor]" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_4" -> "ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_1" [ label = "[input=UnorderedKVOutput,\n output=UnorderedKVInput,\n dataMovement=BROADCAST,\n schedulingType=SEQUENTIAL]" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_4_warehouse" [ label = "Map_4[warehouse]", shape = "box" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_4_warehouse" -> "ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_4" [ label = "Input [inputClass=MRInputLegacy,\n initializer=HiveSplitGenerator]" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_5" [ label = "Map_5[MapTezProcessor]" ];
+"ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_5" -> "ubuntu_20161002161705_5355a74c_44aa_4f80_af43_cf3817b89c7b_1.Map_1" [ label = "[input=UnorderedKVOutput,\n output=UnorderedKVInput,\n dataMovement=BROADCAST,\n schedulingType=SEQUENTIAL]" ];
+}
